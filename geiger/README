@@ -1,0 +1,4 @@
+Code for geiger counter built with Arduino Nano and cajoe radiationd v1.1 board.
+The board is connected to 2004A screen via I2C.
+Geiger counter is connected to arduino via pin connection which is mapped to an interrupt in code.
+The Geiger tube used is J305.
