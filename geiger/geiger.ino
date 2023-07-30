@@ -119,7 +119,7 @@ void showScreen(short int screen_number){
       lcd.print("bk:");
       lcd.print(radioactivity_bk_1m);
       lcd.print(" mR/h:");
-      lcd.print(int(radioactivity_mR_1m));
+      lcd.print(radioactivity_mR_1m);
       lcd.setCursor(0,2);
       lcd.write(0);
       lcd.print("Sv/h:");
@@ -138,7 +138,7 @@ void showScreen(short int screen_number){
       lcd.print("bk:");
       lcd.print(radioactivity_bk_5m);
       lcd.print(" mR/h:");
-      lcd.print(int(radioactivity_mR_5m));
+      lcd.print(radioactivity_mR_5m);
       lcd.setCursor(0,2);
       lcd.write(0);
       lcd.print("Sv/h:");
@@ -157,7 +157,7 @@ void showScreen(short int screen_number){
       lcd.print("bk:");
       lcd.print(radioactivity_bk_15m);
       lcd.print(" mR/h:");
-      lcd.print(int(radioactivity_mR_15m));
+      lcd.print(radioactivity_mR_15m);
       lcd.setCursor(0,2);
       lcd.write(0);
       lcd.print("Sv/h:");
@@ -176,7 +176,7 @@ void showScreen(short int screen_number){
       lcd.print("bk:");
       lcd.print(radioactivity_bk_1h);
       lcd.print(" mR/h:");
-      lcd.print(int(radioactivity_mR_1h));
+      lcd.print(radioactivity_mR_1h);
       lcd.setCursor(0,2);
       lcd.write(0);
       lcd.print("Sv/h:");
