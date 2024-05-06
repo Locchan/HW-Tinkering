@@ -1,11 +1,19 @@
-CC=gcc
-CFLAGS=-I. -O2 -fdata-sections -ffunction-sections -flto -std=c99 -Wall --pedantic
-LDFLAGS=-Wl,--gc-sections,-flto
+BLDDIR=./build
+SUBDIRS=src
 
-meteo: config.o meteo.o
-	$(CC) $(CFLAGS) config.o meteo.o -o meteo.bin $(LDFLAGS)
+release:
+	mkdir -p $(BLDDIR)
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir release; \
+	done
 
-.PHONY: clean
+debug:
+	mkdir -p $(BLDDIR)
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir debug; \
+	done
 
 clean:
-	rm -f ./*.o ./*.bin
+	rm -f ./*.o ./*.bin ./*.so ./*.elf
+	rm -f $(BLDDIR)/*
+	cd src && make clean

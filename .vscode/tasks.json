@@ -1,0 +1,30 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "meteo_clean_workspace",
+            "command": "/usr/bin/make",
+            "args": ["clean"],
+            "options": {
+                "cwd": "${workspaceFolder}/meteo"
+            }
+        },
+        {
+            "type": "shell",
+            "label": "meteo_make_everything",
+            "command": "/usr/bin/make",
+            "args": ["debug"],
+            "options": {
+                "cwd": "${workspaceFolder}/meteo"
+            }
+        },
+        {
+            "label": "meteo_clean_and_build",
+            "dependsOn": [
+                "meteo_clean_workspace",
+                "meteo_make_everything"
+            ]
+        }
+    ],
+    "version": "2.0.0"
+}

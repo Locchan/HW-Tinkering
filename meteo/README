@@ -1,0 +1,3 @@
+Data gatherer.
+
+Gathers from hardware sensors, stores the data and spits it out once asked to do so.

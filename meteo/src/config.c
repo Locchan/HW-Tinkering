@@ -4,10 +4,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "headers/config.h"
+#include "../headers/meteo.h"
+#include "../headers/config.h"
 
 #define MAX_LEN 128
-#define LINES_TO_IGNORE = 5;
+#define LINES_TO_IGNORE 15
 
 const char delimiter[2] = ":";
 
@@ -21,8 +22,8 @@ struct config* get_config(char* filepath){
     fp = fopen(filepath, "r");
 
     if (fp == NULL) {
-      printf("Tried path: %s", filepath);
-      perror("Could not read config file: ");
+      printf("\nTried path: %s\n", filepath);
+      perror("\nCould not read config file: ");
       exit(EXIT_FAILURE);
     }
 
@@ -32,14 +33,13 @@ struct config* get_config(char* filepath){
     while (fgets(line_buf, MAX_LEN, fp))
     {
         line_buf[strcspn(line_buf, "\r\n")] = 0;
-        // printf("%s\n", line_buf);
-        // Ignore first 5 lines
 
-        if(!start_found && iterator == 5){
+        // Ignore first 5 lines
+        if(!start_found && iterator == LINES_TO_IGNORE){
             start_found = 1;
             iterator = 0;
         } else if(!start_found) {
-            iterator+=1;
+            iterator++;
             continue;
         }
 
@@ -57,7 +57,7 @@ struct config* get_config(char* filepath){
         key = strtok(line_buf, delimiter);
         value = strtok(NULL, delimiter);
         if (key == NULL || value == NULL){
-            printf("Malformed config.\n");
+            printf("\nMalformed config.\n");
             exit(EXIT_FAILURE);
         }
 
@@ -67,9 +67,42 @@ struct config* get_config(char* filepath){
         strcpy(current_element->key, key);
         strcpy(current_element->value, value);
 
-        iterator += 1;
+        iterator++;
     }
 
     fclose(fp);
     return current_element->head;
+}
+
+struct monitoring_point* configure_monitoring_points(struct config* configuration){
+    const char value_delimiter[2] = " ";
+    char* pin, interval;
+    struct monitoring_point* current_monitoring_point = malloc(sizeof(struct monitoring_point));
+    *current_monitoring_point = (struct monitoring_point) 
+        { 
+         .device_id=NULL, .device_name=NULL, .pin=NULL,
+         .gathering_interval_sec = NULL, .head=NULL, .next=NULL
+        };
+    uint8_t iterator = 0;
+    do {
+        strncpy(current_monitoring_point->device_name, configuration->key, 16);
+
+        strip_trailing_spaces_and_newlines(configuration->value);
+
+        pin = strtok(configuration->value, value_delimiter);
+        interval = strtok(NULL, value_delimiter);
+
+        current_monitoring_point->device_id = iterator;
+
+        if (pin == NULL || interval == NULL){
+            printf("\nMalformed config.\n");
+            printf("Malformed entry: %s\n", configuration->key);
+            exit(EXIT_FAILURE);
+        }
+
+        current_monitoring_point->pin = atoi(pin);
+        current_monitoring_point->gathering_interval_sec = atoi(interval);
+
+        iterator++;
+    } while(configuration != NULL);
 }
