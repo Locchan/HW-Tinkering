@@ -1,10 +1,16 @@
 #include <sys/sysinfo.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <time.h>
 
+#include "../headers/datastrcts.h"
 #include "../headers/util.h"
+#include "../headers/globs.h"
 
 uint64_t get_free_memory(){
     uint64_t pages = sysconf(_SC_AVPHYS_PAGES);
@@ -13,12 +19,14 @@ uint64_t get_free_memory(){
 }
 
 void print_help(){
-    printf("USAGE:\n\t-h\t\t\t\tShow help message\n\t-c CONFIG_PATH\t\t\tSet configuration path.\n");
+    printf("USAGE:\n\t-h\n\t\t\tShow help message\n");
+    printf("\t-c CONFIG_PATH\n\t\t\tSet configuration path.\n");
+    printf("\t-o OFFLOAD\n\t\t\tPath to periodically offload metrics to.\n");
 }
 
-void strip_trailing_spaces_and_newlines(char* str){
+void strip(char* str){
     uint8_t length = strlen(str);
-    char* temp_str = malloc(length * sizeof(char));
+    char* temp_str = malloc((length + 1) * sizeof(char));
     strcpy(temp_str, str);
 
     uint8_t first_non_space_char;
@@ -38,7 +46,49 @@ void strip_trailing_spaces_and_newlines(char* str){
             last_non_space_char = i;
         }
     }
-
-    strncpy(str, temp_str + first_non_space_char, last_non_space_char - first_non_space_char);
+    substring(temp_str, first_non_space_char, last_non_space_char - first_non_space_char + 1, str);
     free(temp_str);
+}
+
+// Creates a substring provided input, offset, length (how much chars to substring) and dest
+// len of -1 means "Until the end of the string"
+void substring(const char* input, uint8_t offset, int16_t len, char* dest){
+  uint8_t input_len = strlen(input);
+
+
+  if (offset + len > input_len){
+    printf("Substring error.");
+    printf("Params: input \"%s\"; offset \"%d\"; length \"%d\";", input, offset, len);
+    return;
+  }
+
+  if (len != -1){
+    strncpy(dest, input + offset, len);
+    dest[len] = '\0';
+  } else {
+    uint8_t new_len = input_len - offset;
+    strncpy(dest, input + offset, new_len);
+    dest[new_len] = '\0';
+  }
+}
+
+// Finds a character inside a string and returns its position
+// Returns -1 is the char is not found
+int16_t findchr(char* str, const char* token){
+    uint8_t string_len = strlen(str);
+    for (int16_t i = 0; i < string_len; i++){
+        if (str[i] == *token){
+            return i;
+        }
+    }
+    return -1;
+}
+
+void printdbg(const char *format, ...){
+    va_list ap;
+    if (debug) {
+        va_start(ap, format);
+        vprintf(format, ap);
+        va_end(ap);
+    }
 }

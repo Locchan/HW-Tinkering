@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/meteo/build/meteo.elf",
-            "args": ["-c", "/home/locchan/dev/HW-Tinkering/meteo/cfg/config.cfg"],
+            "args": ["-c", "/home/locchan/dev/HW-Tinkering/meteo/cfg/config.cfg", "-d", "-o", "/tmp/offload_test"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

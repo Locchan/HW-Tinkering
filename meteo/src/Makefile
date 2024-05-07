@@ -1,6 +1,6 @@
 CC=gcc
 
-OBJS=config.o meteo.o util.o
+OBJS=config.o meteo.o util.o gather.o metstor.o
 
 BLDDIR=$(PWD)/build
 ORIGDIR=$(PWD)
@@ -14,10 +14,10 @@ prepare:
 	$(info Objects to build: [${BLDDIROBJS}])
 
 build_release: CFLAGS = -O2 -fdata-sections -ffunction-sections -flto -std=c99 -Wall --pedantic
-build_release: LDFLAGS = -Wl,--gc-sections,-flto
+build_release: LDFLAGS = -Wl,--gc-sections,-flto -lpthread -lrt
 
 build_debug: CFLAGS = -g -std=c99 -Wall --pedantic
-build_debug: LDFLAGS = -Wl,-g
+build_debug: LDFLAGS = -Wl,-g -lpthread -lrt
 
 build_release: $(OBJS) 
 	mv *.o $(BLDDIR)

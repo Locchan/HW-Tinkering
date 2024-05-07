@@ -4,6 +4,13 @@
         "util.h": "c",
         "sysinfo.h": "c",
         "time.h": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "stdlib.h": "c",
+        "stdio.h": "c",
+        "string.h": "c",
+        "meteo.h": "c",
+        "stdint.h": "c",
+        "metstor.h": "c",
+        "datastrcts.h": "c"
     }
 }
