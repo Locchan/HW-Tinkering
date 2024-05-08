@@ -26,7 +26,7 @@ time_t current_time_s = 1;
 bool timetodie = false;
 uint8_t exitcodetodiewith = 0;
 
-int main(int argc, char** argv){
+int main_wrapped(int argc, char** argv){
     char* config_filepath;
     uint64_t freemem = get_free_memory();
 
@@ -64,6 +64,7 @@ int main(int argc, char** argv){
         exit(EXIT_FAILURE);
     }
     start_threads();
+    return(EXIT_FAILURE);
 }
 
 void start_threads(){

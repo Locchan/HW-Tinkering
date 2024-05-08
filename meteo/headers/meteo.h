@@ -1,3 +1,6 @@
+#include <stdbool.h>
+
+int main_wrapped(int argc, char** argv);
 bool initialize(char* cfg_filepath);
 void start_threads();
 void* gathering_loop();

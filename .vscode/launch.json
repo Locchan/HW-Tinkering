@@ -22,5 +22,32 @@
             "preLaunchTask": "meteo_clean_and_build",
             "miDebuggerPath": "/usr/bin/gdb"
         },
-    ]
+        {
+            "name": "Meteo: Launch tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/meteo/build/test/tests.elf",
+            "args": ["--debug=gdb"],
+            "cwd": "${workspaceFolder}",
+        },
+        {
+            "type": "gdb",
+            "request": "attach",
+            "name": "Meteo: Attach debugger to tests",
+            "executable": "${workspaceFolder}/meteo/build/test/tests.elf",
+            "target": "127.0.0.1:1234",
+            "remote": true,
+            "cwd": "${workspaceRoot}", 
+            "gdbpath": "/usr/bin/gdb",
+        },
+        
+    ],
+    "compounds": [
+        {
+          "name": "Meteo: Build and launch tests",
+          "configurations": ["Meteo: Launch tests", "Meteo: Attach debugger to tests"],
+          "preLaunchTask": "meteo_clean_and_build",
+          "stopAll": true
+        }
+      ]
 }

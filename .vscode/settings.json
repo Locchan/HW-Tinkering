@@ -11,6 +11,7 @@
         "meteo.h": "c",
         "stdint.h": "c",
         "metstor.h": "c",
-        "datastrcts.h": "c"
+        "datastrcts.h": "c",
+        "criterion.h": "c"
     }
 }

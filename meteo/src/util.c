@@ -50,29 +50,34 @@ void strip(char* str){
     free(temp_str);
 }
 
-// Creates a substring provided input, offset, length (how much chars to substring) and dest
+// Creates a substring provided input, offset, length
+//  (how much chars to substring starting with offset) and dest
 // len of -1 means "Until the end of the string"
 void substring(const char* input, uint8_t offset, int16_t len, char* dest){
   uint8_t input_len = strlen(input);
 
+  if(len == 0 || input_len == 0){
+    strcpy(dest, input);
+    return;
+  }
 
   if (offset + len > input_len){
-    printf("Substring error.");
-    printf("Params: input \"%s\"; offset \"%d\"; length \"%d\";", input, offset, len);
+    printf("Substring error.\n");
+    printf("Params: input \"%s\"; offset \"%d\"; length \"%d\"\n", input, offset, len);
     return;
   }
 
   if (len != -1){
-    strncpy(dest, input + offset, len);
+    memcpy(dest, input + offset * sizeof(char), len);
     dest[len] = '\0';
   } else {
     uint8_t new_len = input_len - offset;
-    strncpy(dest, input + offset, new_len);
+    memcpy(dest, input + offset, new_len);
     dest[new_len] = '\0';
   }
 }
 
-// Finds a character inside a string and returns its position
+// Finds a first matching character inside a string and returns its position
 // Returns -1 is the char is not found
 int16_t findchr(char* str, const char* token){
     uint8_t string_len = strlen(str);

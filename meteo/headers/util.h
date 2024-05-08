@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 uint64_t get_free_memory();
 void print_help();
 void strip (char* str);
