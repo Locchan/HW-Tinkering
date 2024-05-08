@@ -1,5 +1,7 @@
+#define _POSIX_C_SOURCE 200809L
 #include <criterion/criterion.h>
 #include <string.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <libgen.h>
@@ -26,7 +28,7 @@ Test(config, get_config) {
         // Config can contain non-stripped values
         strcpy(tmpstring2, parsed_config->value);
         strip(tmpstring2);
-        
+
         cr_assert(strcmp(tmpstring2, tmpstring) == 0);
         iterator++;
         parsed_config = parsed_config->next;

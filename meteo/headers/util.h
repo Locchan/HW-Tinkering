@@ -5,4 +5,7 @@ void print_help();
 void strip (char* str);
 void substring(const char* input, uint8_t offset, int16_t len, char* dest);
 int16_t findchr(char* str, const char* token);
-void printdbg(const char *format, ...);
+void free_unused_heap();
+void print_memory_stats();
+void T_printdbg(const char *format, ...);
+void T_printf(const char *format, ...);

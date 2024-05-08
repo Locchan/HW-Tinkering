@@ -26,7 +26,7 @@ struct config* get_config(char* filepath){
     fp = fopen(filepath, "r");
 
     if (fp == NULL) {
-      printf("\nTried path: %s\n", filepath);
+      T_printf("\nTried path: %s\n", filepath);
       perror("\nCould not read config file: ");
       exit(EXIT_FAILURE);
     }
@@ -61,7 +61,7 @@ struct config* get_config(char* filepath){
         key = strtok(line_buf, delimiter);
         value = strtok(NULL, delimiter);
         if (key == NULL || value == NULL){
-            printf("\nMalformed config.\n");
+            T_printf("\nMalformed config.\n");
             exit(EXIT_FAILURE);
         }
 
@@ -101,7 +101,7 @@ struct monitoring_point* configure_monitoring_points(struct config* configuratio
 
         strip(configuration->value);
 
-        char* value = malloc(strlen(configuration->value) * sizeof(char));
+        char* value = malloc((strlen(configuration->value) + 1) * sizeof(char));
         strcpy(value, configuration->value);
 
         int16_t delimiter_pos = findchr(value, value_delimiter);
@@ -139,9 +139,9 @@ struct monitoring_point* configure_monitoring_points(struct config* configuratio
 }
 
 void err_malformed_config(){
-    printf("\nMalformed config.\n");
+    T_printf("\nMalformed config.\n");
     if (strlen(err) != 0){
-        printf("%s\n", err);
+        T_printf("%s\n", err);
     }
     exit(EXIT_FAILURE);
 }

@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <time.h>
+#include <malloc.h>
 
 #include "../headers/datastrcts.h"
 #include "../headers/util.h"
@@ -19,9 +20,9 @@ uint64_t get_free_memory(){
 }
 
 void print_help(){
-    printf("USAGE:\n\t-h\n\t\t\tShow help message\n");
-    printf("\t-c CONFIG_PATH\n\t\t\tSet configuration path.\n");
-    printf("\t-o OFFLOAD\n\t\t\tPath to periodically offload metrics to.\n");
+    T_printf("USAGE:\n\t-h\n\t\t\tShow help message\n");
+    T_printf("\t-c CONFIG_PATH\n\t\t\tSet configuration path.\n");
+    T_printf("\t-o OFFLOAD\n\t\t\tPath to periodically offload metrics to.\n");
 }
 
 void strip(char* str){
@@ -62,8 +63,8 @@ void substring(const char* input, uint8_t offset, int16_t len, char* dest){
   }
 
   if (offset + len > input_len){
-    printf("Substring error.\n");
-    printf("Params: input \"%s\"; offset \"%d\"; length \"%d\"\n", input, offset, len);
+    T_printf("Substring error.\n");
+    T_printf("Params: input \"%s\"; offset \"%d\"; length \"%d\"\n", input, offset, len);
     return;
   }
 
@@ -89,11 +90,42 @@ int16_t findchr(char* str, const char* token){
     return -1;
 }
 
-void printdbg(const char *format, ...){
+void free_unused_heap(){
+    malloc_trim(0);
+}
+
+void print_memory_stats(){
+    if (debug) {
+        struct mallinfo2 memstat = mallinfo2();
+        T_printdbg("\tTotal non-mmapped bytes (arena):       %zu\n", memstat.arena);
+        T_printdbg("\t# of free chunks (ordblks):            %zu\n", memstat.ordblks);
+        T_printdbg("\t# of free fastbin blocks (smblks):     %zu\n", memstat.smblks);
+        T_printdbg("\t# of mapped regions (hblks):           %zu\n", memstat.hblks);
+        T_printdbg("\tBytes in mapped regions (hblkhd):      %zu\n", memstat.hblkhd);
+        T_printdbg("\tMax. total allocated space (usmblks):  %zu\n", memstat.usmblks);
+        T_printdbg("\tFree bytes held in fastbins (fsmblks): %zu\n", memstat.fsmblks);
+        T_printdbg("\tTotal allocated space (uordblks):      %zu\n", memstat.uordblks);
+        T_printdbg("\tTotal free space (fordblks):           %zu\n", memstat.fordblks);
+        T_printdbg("\tTopmost releasable block (keepcost):   %zu\n", memstat.keepcost);
+    }
+}
+
+void T_printdbg(const char *format, ...){
+    pthread_mutex_lock(&print_lock);
     va_list ap;
     if (debug) {
         va_start(ap, format);
         vprintf(format, ap);
         va_end(ap);
     }
+    pthread_mutex_unlock(&print_lock);
+}
+
+void T_printf(const char *format, ...){
+    pthread_mutex_lock(&print_lock);
+    va_list ap;
+    va_start(ap, format);
+    vprintf(format, ap);
+    va_end(ap);
+    pthread_mutex_unlock(&print_lock);
 }

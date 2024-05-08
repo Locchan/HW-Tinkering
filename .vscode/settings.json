@@ -12,6 +12,7 @@
         "stdint.h": "c",
         "metstor.h": "c",
         "datastrcts.h": "c",
-        "criterion.h": "c"
+        "criterion.h": "c",
+        "gather.h": "c"
     }
 }
