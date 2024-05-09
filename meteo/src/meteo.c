@@ -93,7 +93,12 @@ void start_threads(){
 
     T_printf("Threads started. Merging main thread with gathering thread.\n");
     
-    while(true){
+    main_loop();
+}
+
+void main_loop(){
+        T_printf("OT: Main loop started.\n");
+        while(true){
         if(!timetodie){
             main_iteration++;
             T_printdbg("MT: Main thread iteration #%d\n", main_iteration);
@@ -107,7 +112,6 @@ void start_threads(){
             exit(exitcodetodiewith);
         }
     }
-
 }
 
 void* offload_loop(){

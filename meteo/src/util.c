@@ -13,6 +13,8 @@
 #include "../headers/util.h"
 #include "../headers/globs.h"
 
+char* debug_meminfo_location = "/tmp/meteo_debug_meminfo";
+
 uint64_t get_free_memory(){
     uint64_t pages = sysconf(_SC_AVPHYS_PAGES);
     uint32_t page_size = sysconf(_SC_PAGESIZE);
@@ -107,7 +109,29 @@ void print_memory_stats(){
         T_printdbg("\tTotal allocated space (uordblks):      %zu\n", memstat.uordblks);
         T_printdbg("\tTotal free space (fordblks):           %zu\n", memstat.fordblks);
         T_printdbg("\tTopmost releasable block (keepcost):   %zu\n", memstat.keepcost);
+        export_memory_stats(memstat);
     }
+}
+
+void export_memory_stats(struct mallinfo2 memstat){
+    T_printdbg("Exporting memory statistics...\n");
+    FILE *dbg_meminfo_fp;
+    dbg_meminfo_fp = fopen(debug_meminfo_location, "a");
+    time_t time_now = 1;
+    time(&time_now);
+    fprintf(dbg_meminfo_fp, "arena:%zu:%ld\n", memstat.arena, time_now);
+    fprintf(dbg_meminfo_fp, "ordblks:%zu:%ld\n", memstat.ordblks, time_now);
+    fprintf(dbg_meminfo_fp, "smblks:%zu:%ld\n", memstat.smblks, time_now);
+    fprintf(dbg_meminfo_fp, "hblks:%zu:%ld\n", memstat.hblks, time_now);
+    fprintf(dbg_meminfo_fp, "hblkhd:%zu:%ld\n", memstat.hblkhd, time_now);
+    fprintf(dbg_meminfo_fp, "usmblks:%zu:%ld\n", memstat.usmblks, time_now);
+    fprintf(dbg_meminfo_fp, "fsmblks:%zu:%ld\n", memstat.fsmblks, time_now);
+    fprintf(dbg_meminfo_fp, "uordblks:%zu:%ld\n", memstat.uordblks, time_now);
+    fprintf(dbg_meminfo_fp, "fordblks:%zu:%ld\n", memstat.fordblks, time_now);
+    fprintf(dbg_meminfo_fp, "keepcost:%zu:%ld\n", memstat.keepcost, time_now);
+
+    fclose(dbg_meminfo_fp);
+
 }
 
 void T_printdbg(const char *format, ...){

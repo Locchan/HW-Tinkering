@@ -12,7 +12,8 @@ struct config {
 
 struct monitoring_point {
     uint8_t device_id;
-    char device_name[17];
+    char device_name[11];
+    char device_type[7];
     uint8_t pin;
     uint32_t gathering_interval_sec;
     time_t last_gathered;

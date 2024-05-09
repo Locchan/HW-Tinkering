@@ -21,7 +21,7 @@ Test(config, get_config) {
     char* tmpstring2 = malloc(128 * sizeof(char));
     int iterator = 0;
     do {
-        sprintf(tmpstring, "Test%d", iterator+1);
+        sprintf(tmpstring, "DUMMY%d%02d", (iterator+1) % 10, iterator+1);
         cr_assert(strcmp(parsed_config->key, tmpstring) == 0);
         sprintf(tmpstring, "%d %d", iterator, 10 + 5 * iterator);
         

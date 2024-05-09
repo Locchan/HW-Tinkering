@@ -97,7 +97,13 @@ struct monitoring_point* configure_monitoring_points(struct config* configuratio
             current_monitoring_point = new_monitoring_point;
         }
 
-        strncpy(current_monitoring_point->device_name, configuration->key, 16);
+        if (strlen(configuration->key) < 7){
+            sprintf(err, "Malformed entry. Key is too small (min 7 characters).");
+            err_malformed_config();
+        }
+
+        substring(configuration->key, 0, 6, current_monitoring_point->device_type);
+        substring(configuration->key, 7, -1, current_monitoring_point->device_name);
 
         strip(configuration->value);
 
