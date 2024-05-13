@@ -7,22 +7,27 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "../headers/datastrcts.h"
-#include "../headers/meteo.h"
+#include "../headers/lodg.h"
 #include "../headers/config.h"
 #include "../headers/util.h"
 #include "../headers/gather.h"
 #include "../headers/metstor.h"
 #include "../headers/globs.h"
+#include "../headers/gath_unix.h"
+#include "../headers/mqtt.h"
 
 #define GATHERING_LOOP_PERIOD_SEC 1
 #define OFLLOAD_LOOP_PERIOD_SEC 60
 #define MAIN_THREAD_LOOP_PERIOD_SEC 300
 
+char* version = "1.0.0";
 pthread_mutex_t print_lock;
 bool debug = false;
-char* offload_location;
+char* exporter_config;
+char* exporter;
 struct monitoring_point* monitoring_points;
 uint32_t gathering_iteration = 0;
 uint32_t offload_iteration = 0;
@@ -38,7 +43,12 @@ int main_wrapped(int argc, char** argv){
 
     // Parse cmdline arguments
     for (int i = 0; i < argc; i++){
+        if(strcmp(argv[i], "-v") == 0){
+            printver();
+            exit(EXIT_SUCCESS);
+        }
         if(strcmp(argv[i], "-h") == 0){
+            printver();
             print_help();
             exit(EXIT_SUCCESS);
         }
@@ -47,21 +57,25 @@ int main_wrapped(int argc, char** argv){
             i++;
         }
         if(strcmp(argv[i], "-o") == 0){
-            offload_location = argv[i+1];
+            exporter_config = argv[i+1];
             i++;
         }
         if(strcmp(argv[i], "-d") == 0){
             debug = true;
             T_printdbg("Debug mode toggled\n");
         }
+        if(strcmp(argv[i], "-e") == 0){
+            exporter = argv[i+1];
+            i++;
+        }
     }
 
-    if(config_filepath == NULL || offload_location == NULL){
+    if(config_filepath == NULL || exporter_config == NULL || exporter == NULL){
         print_help();
         exit(EXIT_FAILURE);
     }
 
-    T_printf("Meteo data gatherer. Starting...\n");
+    T_printf("lodg data gatherer. Starting...\n");
     T_printf("Free memory: %ldK\n", freemem / 1024);
     bool config_result = initialize(config_filepath);
 
@@ -71,6 +85,10 @@ int main_wrapped(int argc, char** argv){
     }
     start_threads();
     return(EXIT_FAILURE);
+}
+
+void printver(){
+    T_printf("lodg version %s built on %s.\n", version, __DATE__);
 }
 
 void start_threads(){
@@ -102,10 +120,12 @@ void main_loop(){
         if(!timetodie){
             main_iteration++;
             T_printdbg("MT: Main thread iteration #%d\n", main_iteration);
+            #ifdef __GLIBC
             T_printdbg("MT: Memory statistics:\n");
             print_memory_stats();
             T_printdbg("MT: Freeing excess heap memory...\n");
             free_unused_heap();
+            #endif
             sleep(MAIN_THREAD_LOOP_PERIOD_SEC);
         } else {
             T_printf("MT: Exiting with code %d\n", exitcodetodiewith);
@@ -164,6 +184,12 @@ void gathering_loop_iteration(){
 }
 
 bool initialize(char* cfg_filepath){
+    T_printf("Initializing exporter...\n");
+    char* error = initialize_exporter();
+    if (error != NULL){
+        T_printf("Error initializing exporter: %s\n", error);
+        exit(EXIT_FAILURE);
+    }
     T_printf("Config file path is: %s\n", cfg_filepath);
     T_printf("Loading config...");
     struct config* configuration = get_config(cfg_filepath);
@@ -180,12 +206,29 @@ bool initialize(char* cfg_filepath){
     T_printf("Monitoring points:\n");
     do {
         T_printf("\tID: %d\n", temp->device_id);
+        T_printf("\tDevice type: %s\n", temp->device_type);
         T_printf("\tDevice name: %s\n", temp->device_name);
-        T_printf("\tDevice pin: %d\n", temp->pin);
+        T_printf("\tDevice config: %s\n", temp->cfg);
         T_printf("\tGathering interval: %ds\n", temp->gathering_interval_sec);
         T_printf("\n");
         temp = temp->next;
     } while (temp != NULL);
 
     return true;
+}
+
+char* initialize_exporter(){
+    if(strcmp(exporter, "FILE") == 0){
+        if(access(exporter_config, W_OK) == 0) {
+            return NULL;
+        } else {
+            return "Filepath not accessible!";   
+        }
+    }
+
+    if(strcmp(exporter, "MQTT") == 0){
+        return initialize_mqtt(exporter_config);
+    }
+
+    return "Unknown error.";
 }

@@ -8,11 +8,19 @@
         "stdlib.h": "c",
         "stdio.h": "c",
         "string.h": "c",
-        "meteo.h": "c",
+        "lodg.h": "c",
         "stdint.h": "c",
         "metstor.h": "c",
         "datastrcts.h": "c",
         "criterion.h": "c",
-        "gather.h": "c"
+        "gather.h": "c",
+        "random": "c",
+        "system_error": "c",
+        "array": "c",
+        "functional": "c",
+        "tuple": "c",
+        "utility": "c",
+        "pthread.h": "c",
+        "stdbool.h": "c"
     }
 }

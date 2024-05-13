@@ -1,4 +1,4 @@
-#include <sys/sysinfo.h>
+#define _POSIX_C_SOURCE 200112L
 #include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -8,12 +8,17 @@
 #include <stdbool.h>
 #include <time.h>
 #include <malloc.h>
+#include <arpa/inet.h>
+#include <sys/sysinfo.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 #include "../headers/datastrcts.h"
 #include "../headers/util.h"
 #include "../headers/globs.h"
 
-char* debug_meminfo_location = "/tmp/meteo_debug_meminfo";
+char* debug_meminfo_location = "/tmp/lodg_debug_meminfo";
 
 uint64_t get_free_memory(){
     uint64_t pages = sysconf(_SC_AVPHYS_PAGES);
@@ -22,9 +27,15 @@ uint64_t get_free_memory(){
 }
 
 void print_help(){
-    T_printf("USAGE:\n\t-h\n\t\t\tShow help message\n");
-    T_printf("\t-c CONFIG_PATH\n\t\t\tSet configuration path.\n");
-    T_printf("\t-o OFFLOAD\n\t\t\tPath to periodically offload metrics to.\n");
+    T_printf("USAGE:\n\t-h\n\t\tShow help message\n");
+    T_printf("\t-c CONFIG_PATH\n\t\tSet configuration path.\n");
+    T_printf("\t-o EXPORTER_CONFIG\n\t\tConfiguration for the chosen exporter.\n");
+    T_printf("\t-e EXPORTER\n\t\tExporter to use. Supported exporters: FILE, MQTT.\n");
+    T_printf("\t-d\n\t\tToggle debug.\n");
+    T_printf("\t-v\n\t\tPrint version.\n");
+    T_printf("Exporter configuration: \n");
+    T_printf("\tMQTT\n\t\tADDR:PORT:TOPIC.\n");
+    T_printf("\tFILE\n\t\tJust a valid path to a file in local filesystem.\n");
 }
 
 void strip(char* str){
@@ -92,6 +103,7 @@ int16_t findchr(char* str, const char* token){
     return -1;
 }
 
+#ifdef __GLIBC
 void free_unused_heap(){
     malloc_trim(0);
 }
@@ -133,6 +145,7 @@ void export_memory_stats(struct mallinfo2 memstat){
     fclose(dbg_meminfo_fp);
 
 }
+#endif
 
 void T_printdbg(const char *format, ...){
     pthread_mutex_lock(&print_lock);
@@ -152,4 +165,10 @@ void T_printf(const char *format, ...){
     vprintf(format, ap);
     va_end(ap);
     pthread_mutex_unlock(&print_lock);
+}
+
+bool validate_address(char* address, char* port){
+    struct addrinfo* res = NULL;
+    getaddrinfo(address, port, 0, &res);
+    return res != NULL;
 }

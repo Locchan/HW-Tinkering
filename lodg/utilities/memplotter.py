@@ -1,4 +1,4 @@
-# Plots memory stats exported by meteo in debug mode
+# Plots memory stats exported by lodg in debug mode
 
 import time
 import matplotlib.pyplot
@@ -30,7 +30,7 @@ def draw():
         plt.title(label=anitem)
     plt.show()
 
-mem_data_fp = open("/tmp/meteo_debug_meminfo","r")
+mem_data_fp = open("/tmp/lodg_debug_meminfo","r")
 
 tailf(mem_data_fp)
 draw()

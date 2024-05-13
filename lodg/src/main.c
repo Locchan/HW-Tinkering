@@ -1,4 +1,5 @@
-#include "../headers/meteo.h"
+#include "../headers/lodg.h"
+#include "../headers/globs.h"
 #include <stdio.h>
 #include <stdlib.h>
 

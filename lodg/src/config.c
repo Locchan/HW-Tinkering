@@ -6,14 +6,14 @@
 #include <time.h>
 
 #include "../headers/datastrcts.h"
-#include "../headers/meteo.h"
+#include "../headers/lodg.h"
 #include "../headers/config.h"
 #include "../headers/util.h"
 
 #define MAX_LEN 128
 #define LINES_TO_IGNORE 15
 
-const char delimiter[1] = ":";
+const char cfg_delimiter[1] = ":";
 char err[256];
 
 struct config* get_config(char* filepath){
@@ -58,8 +58,8 @@ struct config* get_config(char* filepath){
             current_element = new_element;
         }
 
-        key = strtok(line_buf, delimiter);
-        value = strtok(NULL, delimiter);
+        key = strtok(line_buf, cfg_delimiter);
+        value = strtok(NULL, cfg_delimiter);
         if (key == NULL || value == NULL){
             T_printf("\nMalformed config.\n");
             exit(EXIT_FAILURE);
@@ -80,7 +80,6 @@ struct config* get_config(char* filepath){
 
 struct monitoring_point* configure_monitoring_points(struct config* configuration){
     const char* value_delimiter = " ";
-    char* pin = malloc(4 * sizeof(char));
     char* interval = malloc(10 * sizeof(char));
     struct monitoring_point* current_monitoring_point = malloc(sizeof(struct monitoring_point));
     *current_monitoring_point = (struct monitoring_point) {0};
@@ -103,7 +102,7 @@ struct monitoring_point* configure_monitoring_points(struct config* configuratio
         }
 
         substring(configuration->key, 0, 6, current_monitoring_point->device_type);
-        substring(configuration->key, 7, -1, current_monitoring_point->device_name);
+        substring(configuration->key, 6, -1, current_monitoring_point->device_name);
 
         strip(configuration->value);
 
@@ -117,8 +116,13 @@ struct monitoring_point* configure_monitoring_points(struct config* configuratio
             err_malformed_config();
         }
 
-        substring(configuration->value, 0, delimiter_pos, pin);
-        strip(pin);
+        if (strlen(configuration->value) > 44){
+            sprintf(err, "Malformed entry (%s): value is too long! (max 42 chars)\n", configuration->key);
+            err_malformed_config();
+        }
+
+        substring(configuration->value, 0, delimiter_pos, current_monitoring_point->cfg);
+        strip(current_monitoring_point->cfg);
 
         substring(configuration->value, delimiter_pos, -1, interval);
         strip(interval);
@@ -127,19 +131,17 @@ struct monitoring_point* configure_monitoring_points(struct config* configuratio
 
         current_monitoring_point->device_id = iterator;
 
-        if (pin == NULL || interval == NULL){
+        if (interval == NULL){
             sprintf(err, "Malformed entry: %s\n", configuration->key);
             err_malformed_config();
         }
 
-        current_monitoring_point->pin = atoi(pin);
         current_monitoring_point->gathering_interval_sec = atoi(interval);
 
         iterator++;
         configuration = configuration->next;
     } while(configuration != NULL);
 
-    free(pin);
     free(interval);
     return current_monitoring_point->head;
 }

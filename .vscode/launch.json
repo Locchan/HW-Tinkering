@@ -2,11 +2,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Meteo: Build and Debug",
+            "name": "lodg: Build and Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/meteo/build/meteo.elf",
-            "args": ["-c", "/home/locchan/dev/HW-Tinkering/meteo/cfg/config.cfg", "-d", "-o", "/tmp/offload_test"],
+            "program": "${workspaceFolder}/lodg/build/lodg.elf",
+            "envFile": "${workspaceFolder}/lodg/.env",
+            "args": ["-c", "$CFGPATH", "-d", "-o", "$MQTT_PARAMS", "-e", "MQTT"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
@@ -19,22 +20,22 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "meteo_clean_and_build",
+            "preLaunchTask": "lodg_clean_and_build",
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "Meteo: Launch tests",
+            "name": "lodg: Launch tests",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/meteo/build/test/tests.elf",
+            "program": "${workspaceFolder}/lodg/build/test/tests.elf",
             "args": ["--debug=gdb"],
             "cwd": "${workspaceFolder}",
         },
         {
             "type": "gdb",
             "request": "attach",
-            "name": "Meteo: Attach debugger to tests",
-            "executable": "${workspaceFolder}/meteo/build/test/tests.elf",
+            "name": "lodg: Attach debugger to tests",
+            "executable": "${workspaceFolder}/lodg/build/test/tests.elf",
             "target": "127.0.0.1:1234",
             "remote": true,
             "cwd": "${workspaceRoot}", 
@@ -44,9 +45,9 @@
     ],
     "compounds": [
         {
-          "name": "Meteo: Build and launch tests",
-          "configurations": ["Meteo: Launch tests", "Meteo: Attach debugger to tests"],
-          "preLaunchTask": "meteo_clean_and_build",
+          "name": "lodg: Build and launch tests",
+          "configurations": ["lodg: Launch tests", "lodg: Attach debugger to tests"],
+          "preLaunchTask": "lodg_clean_and_build",
           "stopAll": true
         }
       ]
