@@ -120,7 +120,7 @@ void main_loop(){
         if(!timetodie){
             main_iteration++;
             T_printdbg("MT: Main thread iteration #%d\n", main_iteration);
-            #ifdef __GLIBC
+            #ifdef __GLIBC__
             T_printdbg("MT: Memory statistics:\n");
             print_memory_stats();
             T_printdbg("MT: Freeing excess heap memory...\n");

@@ -13,7 +13,7 @@ int16_t findchr(char* str, const char* token);
 bool validate_address(char* address, char* port);
 
 
-#ifdef __GLIBC
+#ifdef __GLIBC__
 void free_unused_heap();
 void print_memory_stats();
 void export_memory_stats(struct mallinfo2 memstat);

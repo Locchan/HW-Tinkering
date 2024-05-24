@@ -25,6 +25,9 @@ void push_mon_entry(struct monitoring_data_entry* input_data){
         monitoring_data->tail = input_data;
         prev_last->next = input_data;
     }
+    if(debug){
+        T_printdbg("Monitoring data array length: %d\n", get_metric_arr_len());
+    }
     pthread_mutex_unlock(&metstor_lock);
 }
 
@@ -77,6 +80,17 @@ void return_data(struct monitoring_data_entry* metrics_to_return){
 
 int offload_mqtt(struct monitoring_data_entry* metrics_to_offload){
     return -1;
+}
+
+uint32_t get_metric_arr_len(){
+    struct monitoring_data_entry* currel;
+    currel = monitoring_data;
+    uint32_t len = 0;
+    while(currel != NULL){
+        len+=1;
+        currel = currel->next;  
+    }
+    return len;
 }
 
 int offload_file(struct monitoring_data_entry* metrics_to_offload){

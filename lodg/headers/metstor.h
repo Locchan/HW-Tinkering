@@ -6,4 +6,5 @@ uint32_t offload_metrics();
 int offload_mqtt(struct monitoring_data_entry* metrics_to_offload);
 int offload_file(struct monitoring_data_entry* metrics_to_offload);
 void return_data(struct monitoring_data_entry* metrics_to_return);
+uint32_t get_metric_arr_len();
 #endif

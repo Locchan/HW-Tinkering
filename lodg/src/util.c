@@ -103,7 +103,7 @@ int16_t findchr(char* str, const char* token){
     return -1;
 }
 
-#ifdef __GLIBC
+#ifdef __GLIBC__
 void free_unused_heap(){
     malloc_trim(0);
 }

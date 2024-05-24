@@ -71,7 +71,8 @@ char* initialize_mqtt(char* exporter_config){
         return result;
     }
     T_printf("\tpublish: \"%s\";\n", mosquitto_strerror(cfg_result));
-    cfg_result = mosquitto_publish(mosquitto_obj, 0, "lodg_connection_established", 1, "1", 2, false);
+    char* config = "{\"name\":null,\"device_class\":\"motion\",\"state_topic\":\"homeassistant/binary_sensor/garden/state\",\"unique_id\":\"motion01ad\",\"device\":{\"identifiers\":[\"01ad\"],\"name\":\"Garden\"}}";
+    cfg_result = mosquitto_publish(mosquitto_obj, 0, "homeassistant/binary_sensor/garden/config", strlen(config) + 1, config, 2, true);
     if(cfg_result != MOSQ_ERR_SUCCESS){
         sprintf(result, "Failed to connect to MQTT broker (mosquitto_publish). Error code: %s.", mosquitto_strerror(cfg_result));
         return result;
@@ -81,5 +82,5 @@ char* initialize_mqtt(char* exporter_config){
 }
 
 int mqtt_offload_metrics(){
-    
+
 }
