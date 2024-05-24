@@ -1,3 +1,6 @@
+typedef int stop_throwing_warnings_gcc;
+#ifdef ENABLE_MQTT
+
 #include <string.h>
 #include <stdlib.h>
 #include <mosquitto.h>
@@ -14,7 +17,6 @@ struct mqtt_config* popularize_mqtt_config(char* exporter_config){
     struct mqtt_config* config = malloc(sizeof(struct mqtt_config));
     config->address = strtok(exporter_config, mqtt_cfg_delimiter);;
     config->port = strtok(NULL, mqtt_cfg_delimiter);
-    config->topic = strtok(NULL, mqtt_cfg_delimiter);
     config->username = strtok(NULL, mqtt_cfg_delimiter);
     config->password = strtok(NULL, mqtt_cfg_delimiter);
     return config;
@@ -35,8 +37,8 @@ bool validate_mqtt_config(struct mqtt_config* config){
 char* initialize_mqtt(char* exporter_config){
     char* result = malloc(256 * sizeof(char*));
     struct mqtt_config* mqtt_cfg = popularize_mqtt_config(exporter_config);
-    T_printf("Initializing MQTT: Server: %s, Port: %s, Topic: %s, Username: %s.\n",
-     mqtt_cfg->address, mqtt_cfg->port, mqtt_cfg->topic, mqtt_cfg->username);
+    T_printf("Initializing MQTT: Server: %s, Port: %s, Username: %s.\n",
+     mqtt_cfg->address, mqtt_cfg->port, mqtt_cfg->username);
 
     if(!validate_mqtt_config(mqtt_cfg)){
         result = "MQTT config is invalid. Check address/port and username/password.";
@@ -77,6 +79,7 @@ char* initialize_mqtt(char* exporter_config){
     return NULL;
 }
 
-int mqtt_offload_metrics(){
-    return 0;
+int offload_mqtt(struct monitoring_data_entry* data_to_offload){
+    return 1;
 }
+#endif

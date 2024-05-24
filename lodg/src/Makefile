@@ -3,7 +3,11 @@ CC=gcc
 # For cross-compiling to mipsel
 export STAGING_DIR=/home/builder/omega/source/staging_dir
 
-EXTERNAL_LIBS=-lpthread -lrt -lcriterion -lmosquitto
+EXTERNAL_LIBS=-lpthread -lrt
+
+ifneq (,$(findstring ENABLE_MQTT,$(ENABLED_FEATURES)))
+    EXTERNAL_LIBS:=$(EXTERNAL_LIBS) -lmosquitto
+endif
 
 CSTD=c17
 
@@ -38,7 +42,8 @@ build_debug: LDFLAGS = -Wl,-g $(EXTERNAL_LIBS)
 build_release_cross: $(OBJS)
 	@printf "\n++++++++++++\tBUILDING RELEASE\t++++++++++++\n\n"
 	mv $(shell find . -name '*.o') $(BLDDIR)
-	$(CC) $< $(CFLAGS) $(ENABLED_FEATURES) $(BLDDIROBJS) -o $(BLDDIR)/lodg.elf $(LDFLAGS)
+	$(CC) $(CFLAGS) $(ENABLED_FEATURES) $(BLDDIROBJS) -o $(BLDDIR)/lodg.elf $(LDFLAGS)
+	strip $(BLDDIR)/lodg.elf
 
 build_release: $(OBJS)
 	@printf "\n++++++++++++\tBUILDING RELEASE\t++++++++++++\n\n"

@@ -10,6 +10,10 @@
 #include "./headers/metstor.h"
 #include "./headers/globs.h"
 
+#ifdef ENABLE_MQTT
+#include "./exporters/headers/mqtt.h"
+#endif
+
 struct monitoring_data_entry* monitoring_data;
 pthread_mutex_t metstor_lock;
 
@@ -56,16 +60,18 @@ uint32_t offload_metrics(){
         result = offload_file(monitoring_data->head);
     }
 
+#ifdef ENABLE_MQTT
     if(strcmp(exporter, "MQTT") == 0){
         result = offload_mqtt(monitoring_data->head);
     }
+#endif
+    pthread_mutex_unlock(&metstor_lock);
 
     if(result == -1){
         T_printf("MT: Failed to offload data!\n");
         return 0;
     }
 
-    pthread_mutex_unlock(&metstor_lock);
 
     clock_gettime(CLOCK_MONOTONIC, &tend);
     iteration_time = ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec);
@@ -109,8 +115,4 @@ int offload_file(struct monitoring_data_entry* metrics_to_offload){
 
     fclose(offload_fp);
     return iterator;
-}
-
-int offload_mqtt(struct monitoring_data_entry* metrics_to_offload){
-    return 1;
 }

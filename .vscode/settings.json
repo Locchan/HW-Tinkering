@@ -23,5 +23,6 @@
         "pthread.h": "c",
         "stdbool.h": "c",
         "gath_unix.h": "c"
-    }
+    },
+    "C_Cpp.dimInactiveRegions": false
 }

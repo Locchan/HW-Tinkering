@@ -1,3 +1,6 @@
+typedef int stop_throwing_warnings_gcc;
+#ifdef ENABLE_MQTT
+
 /**
  * @file jemi.c
  *
@@ -396,3 +399,4 @@ static void emit_string(jemi_writer_t writer_fn, void *arg, const char *buf) {
 
 // *****************************************************************************
 // End of file
+#endif

@@ -227,9 +227,11 @@ char* initialize_exporter(){
         }
     }
 
+#ifdef ENABLE_MQTT
     if(strcmp(exporter, "MQTT") == 0){
         return initialize_mqtt(exporter_config);
     }
+#endif
 
-    return "Unknown error.";
+    return "Unknown exporter.";
 }

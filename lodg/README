@@ -1,3 +1,5 @@
 Data gatherer.
 
 Gathers from hardware sensors, stores the data and spits it out once asked to do so.
+
+Can output data to a plain file or via MQTT (in HomeAssistant-compatible way).

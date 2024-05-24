@@ -1,22 +1,22 @@
-TESTDIR=./build/test
+BLDDIR=./build
 SUBDIRS=src
 
-export ENABLED_FEATURES="-D ENABLE_UNIX_GATHERERS"
+export ENABLED_FEATURES=-DENABLE_UNIX_GATHERERS -DENABLE_MQTT
 
 release:
-	mkdir -p $(TESTDIR)
+	mkdir -p $(BLDDIR)
 	for dir in $(SUBDIRS); do \
 		$(MAKE) -C $$dir release; \
 	done
 
 debug:
-	mkdir -p $(TESTDIR)
+	mkdir -p $(BLDDIR)
 	for dir in $(SUBDIRS); do \
 		$(MAKE) -C $$dir debug; \
 	done
 
 release-cross:
-	mkdir -p $(TESTDIR)
+	mkdir -p $(BLDDIR)
 	for dir in $(SUBDIRS); do \
 		$(MAKE) -C $$dir release-cross; \
 	done
