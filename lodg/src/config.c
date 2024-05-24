@@ -5,10 +5,10 @@
 #include <stdbool.h>
 #include <time.h>
 
-#include "../headers/datastrcts.h"
-#include "../headers/lodg.h"
-#include "../headers/config.h"
-#include "../headers/util.h"
+#include "./headers/datastrcts.h"
+#include "./headers/lodg.h"
+#include "./headers/config.h"
+#include "./headers/util.h"
 
 #define MAX_LEN 128
 #define LINES_TO_IGNORE 15

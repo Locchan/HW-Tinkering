@@ -9,15 +9,14 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "../headers/datastrcts.h"
-#include "../headers/lodg.h"
-#include "../headers/config.h"
-#include "../headers/util.h"
-#include "../headers/gather.h"
-#include "../headers/metstor.h"
-#include "../headers/globs.h"
-#include "../headers/gath_unix.h"
-#include "../headers/mqtt.h"
+#include "./headers/datastrcts.h"
+#include "./headers/lodg.h"
+#include "./headers/config.h"
+#include "./headers/util.h"
+#include "./headers/gather.h"
+#include "./headers/metstor.h"
+#include "./headers/globs.h"
+#include "./exporters/headers/mqtt.h"
 
 #define GATHERING_LOOP_PERIOD_SEC 1
 #define OFLLOAD_LOOP_PERIOD_SEC 60
@@ -120,12 +119,14 @@ void main_loop(){
         if(!timetodie){
             main_iteration++;
             T_printdbg("MT: Main thread iteration #%d\n", main_iteration);
+
             #ifdef __GLIBC__
             T_printdbg("MT: Memory statistics:\n");
             print_memory_stats();
             T_printdbg("MT: Freeing excess heap memory...\n");
             free_unused_heap();
             #endif
+
             sleep(MAIN_THREAD_LOOP_PERIOD_SEC);
         } else {
             T_printf("MT: Exiting with code %d\n", exitcodetodiewith);

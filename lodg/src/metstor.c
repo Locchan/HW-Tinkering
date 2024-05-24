@@ -1,85 +1,78 @@
+#define _POSIX_C_SOURCE 200809L
 #include <stdlib.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
-#include "../headers/util.h"
-#include "../headers/datastrcts.h"
-#include "../headers/metstor.h"
-#include "../headers/globs.h"
+#include "./headers/util.h"
+#include "./headers/datastrcts.h"
+#include "./headers/metstor.h"
+#include "./headers/globs.h"
 
 struct monitoring_data_entry* monitoring_data;
 pthread_mutex_t metstor_lock;
 
 void push_mon_entry(struct monitoring_data_entry* input_data){
     pthread_mutex_lock(&metstor_lock);
-    struct monitoring_data_entry* prev_last;
+    struct monitoring_data_entry* temp_mon_ptr = monitoring_data;
 
     if (monitoring_data == NULL){
         monitoring_data = input_data;
         monitoring_data->head = input_data;
         monitoring_data->tail = input_data;
     } else {
-        input_data->head = monitoring_data->head;
-        prev_last = monitoring_data->tail;
-        monitoring_data->tail = input_data;
-        prev_last->next = input_data;
+        while(temp_mon_ptr != NULL){
+            if(temp_mon_ptr->device_id == input_data->device_id){
+                temp_mon_ptr->time = input_data->time;
+                temp_mon_ptr->value = input_data->value;
+                break;
+            } else {
+                temp_mon_ptr = temp_mon_ptr->next;
+            }
+        }
     }
-    if(debug){
-        T_printdbg("Monitoring data array length: %d\n", get_metric_arr_len());
-    }
+
+    T_printdbg("GT: Monitoring data array length: %d\n", get_metric_arr_len());
+    free(input_data);
     pthread_mutex_unlock(&metstor_lock);
 }
 
 uint32_t offload_metrics(){
-    // Lock gathering thread from adding entries while we're stealing all of them
+    struct timespec tstart={0,0}, tend={0,0};
+    long double iteration_time = 0;
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
+
+    // Lock gathering thread from adding entries while we're reading all of them
     pthread_mutex_lock(&metstor_lock);
-    struct monitoring_data_entry* metrics_to_offload = monitoring_data->head;
-    // Stealing all monitoring data from gathering thread.
-    monitoring_data = NULL;
-    pthread_mutex_unlock(&metstor_lock);
-    if(metrics_to_offload == NULL){
+
+    if(monitoring_data->head == NULL){
         return 0;
     }
 
     int result = 0;
 
     if(strcmp(exporter, "FILE") == 0){
-        result = offload_file(metrics_to_offload);
+        result = offload_file(monitoring_data->head);
     }
 
     if(strcmp(exporter, "MQTT") == 0){
-        result = offload_mqtt(metrics_to_offload);
+        result = offload_mqtt(monitoring_data->head);
     }
 
     if(result == -1){
-        T_printf("Failed to offload data!\n");
-        return_data(metrics_to_offload);
+        T_printf("MT: Failed to offload data!\n");
         return 0;
     }
 
+    pthread_mutex_unlock(&metstor_lock);
+
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    iteration_time = ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec);
+    T_printdbg("MT: Metrics offload took %Lfs\n", iteration_time);
+    
     return result;
 
-}
-
-// Returns data if offloading fails for some reason. Prepends data to the start
-void return_data(struct monitoring_data_entry* metrics_to_return){
-    pthread_mutex_lock(&metstor_lock);
-    if (monitoring_data != NULL){
-        struct monitoring_data_entry* oldmondata = monitoring_data->head;
-        monitoring_data = NULL;
-        monitoring_data = metrics_to_return->head;
-        monitoring_data->tail->next = oldmondata;
-        monitoring_data->tail = oldmondata->tail;
-    } else {
-        monitoring_data = metrics_to_return;
-    }
-
-    pthread_mutex_unlock(&metstor_lock);
-}
-
-int offload_mqtt(struct monitoring_data_entry* metrics_to_offload){
-    return -1;
 }
 
 uint32_t get_metric_arr_len(){
@@ -116,4 +109,8 @@ int offload_file(struct monitoring_data_entry* metrics_to_offload){
 
     fclose(offload_fp);
     return iterator;
+}
+
+int offload_mqtt(struct monitoring_data_entry* metrics_to_offload){
+    return 1;
 }

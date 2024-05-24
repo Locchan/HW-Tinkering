@@ -14,9 +14,9 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-#include "../headers/datastrcts.h"
-#include "../headers/util.h"
-#include "../headers/globs.h"
+#include "./headers/datastrcts.h"
+#include "./headers/util.h"
+#include "./headers/globs.h"
 
 char* debug_meminfo_location = "/tmp/lodg_debug_meminfo";
 

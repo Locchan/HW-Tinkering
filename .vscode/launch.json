@@ -23,32 +23,6 @@
             "preLaunchTask": "lodg_clean_and_build",
             "miDebuggerPath": "/usr/bin/gdb"
         },
-        {
-            "name": "lodg: Launch tests",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/lodg/build/test/tests.elf",
-            "args": ["--debug=gdb"],
-            "cwd": "${workspaceFolder}",
-        },
-        {
-            "type": "gdb",
-            "request": "attach",
-            "name": "lodg: Attach debugger to tests",
-            "executable": "${workspaceFolder}/lodg/build/test/tests.elf",
-            "target": "127.0.0.1:1234",
-            "remote": true,
-            "cwd": "${workspaceRoot}", 
-            "gdbpath": "/usr/bin/gdb",
-        },
         
     ],
-    "compounds": [
-        {
-          "name": "lodg: Build and launch tests",
-          "configurations": ["lodg: Launch tests", "lodg: Attach debugger to tests"],
-          "preLaunchTask": "lodg_clean_and_build",
-          "stopAll": true
-        }
-      ]
 }

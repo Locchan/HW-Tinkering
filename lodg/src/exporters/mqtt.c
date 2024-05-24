@@ -3,8 +3,9 @@
 #include <mosquitto.h>
 
 #include "../headers/datastrcts.h"
-#include "../headers/mqtt.h"
+#include "./headers/mqtt.h"
 #include "../headers/util.h"
+#include "../thirdparty/jemi/jemi.h"
 
 const char mqtt_cfg_delimiter[1] = ":";
 struct mosquitto * mosquitto_obj;
@@ -64,23 +65,18 @@ char* initialize_mqtt(char* exporter_config){
         sprintf(result, "Failed to connect to MQTT broker (mosquitto_connect). Error code: %s.", mosquitto_strerror(cfg_result));
         return result;
     }
+    
     cfg_result = mosquitto_loop(mosquitto_obj, 60, 1);
     T_printf("\tloop: \"%s\";\n", mosquitto_strerror(cfg_result));
     if(cfg_result != MOSQ_ERR_SUCCESS){
         sprintf(result, "Failed to connect to MQTT broker (mosquitto_loop). Error code: %s.", mosquitto_strerror(cfg_result));
         return result;
     }
-    T_printf("\tpublish: \"%s\";\n", mosquitto_strerror(cfg_result));
-    char* config = "{\"name\":null,\"device_class\":\"motion\",\"state_topic\":\"homeassistant/binary_sensor/garden/state\",\"unique_id\":\"motion01ad\",\"device\":{\"identifiers\":[\"01ad\"],\"name\":\"Garden\"}}";
-    cfg_result = mosquitto_publish(mosquitto_obj, 0, "homeassistant/binary_sensor/garden/config", strlen(config) + 1, config, 2, true);
-    if(cfg_result != MOSQ_ERR_SUCCESS){
-        sprintf(result, "Failed to connect to MQTT broker (mosquitto_publish). Error code: %s.", mosquitto_strerror(cfg_result));
-        return result;
-    }
+
     T_printf("Connected to MQTT broker!\n");
     return NULL;
 }
 
 int mqtt_offload_metrics(){
-
+    return 0;
 }

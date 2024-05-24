@@ -21,6 +21,7 @@
         "tuple": "c",
         "utility": "c",
         "pthread.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "gath_unix.h": "c"
     }
 }

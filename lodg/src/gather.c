@@ -2,13 +2,13 @@
 #include <time.h>
 #include <string.h>
 
-#include "../headers/datastrcts.h"
-#include "../headers/lodg.h"
-#include "../headers/config.h"
-#include "../headers/metstor.h"
-#include "../headers/gather.h"
-#include "../headers/util.h"
-#include "../headers/gath_unix.h"
+#include "./headers/datastrcts.h"
+#include "./headers/lodg.h"
+#include "./headers/config.h"
+#include "./headers/metstor.h"
+#include "./headers/gather.h"
+#include "./headers/util.h"
+#include "./gatherers/headers/gath_unix.h"
 
 struct monitoring_data_entry* gather_metric(struct monitoring_point* point){
     time_t gathering_time = 1;
