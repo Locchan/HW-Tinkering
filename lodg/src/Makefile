@@ -9,7 +9,7 @@ ifneq (,$(findstring ENABLE_MQTT,$(ENABLED_FEATURES)))
     EXTERNAL_LIBS:=$(EXTERNAL_LIBS) -lmosquitto
 endif
 
-CSTD=c17
+CSTD=c11
 
 OBJS=		$(patsubst %.c,%.o,$(shell find . -name '*.c'))
 BLDDIROBJS= $(patsubst %.c,../build/%.o,$(shell find . -name '*.c' -exec basename {} \;))

@@ -1,4 +1,4 @@
-#define _POSIX_C_SOURCE 200809L
+#define _GNU_SOURCE 
 
 #include <stdio.h>
 #include <stdint.h>
@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <libgen.h>
 
 #include "./headers/datastrcts.h"
 #include "./headers/lodg.h"
@@ -16,7 +17,10 @@
 #include "./headers/gather.h"
 #include "./headers/metstor.h"
 #include "./headers/globs.h"
+
+#ifdef ENABLE_MQTT
 #include "./exporters/headers/mqtt.h"
+#endif
 
 #define GATHERING_LOOP_PERIOD_SEC 1
 #define OFLLOAD_LOOP_PERIOD_SEC 60
@@ -92,24 +96,34 @@ void printver(){
 
 void start_threads(){
     int thr_error;
-    pthread_t thread_ids[2];
+    pthread_t thread_ids[3];
 
     T_printf("Starting threads...\n");
 
     thr_error = pthread_create(&(thread_ids[0]), NULL, &gathering_loop, NULL); 
-    
+    pthread_setname_np(thread_ids[0], "Gathering");
     if (thr_error != 0) {
         T_printf("\nGathering thread creation failed:[%s]\n", strerror(thr_error));
     }
     
+    // File exporter needs an offload thread
     thr_error = pthread_create(&(thread_ids[1]), NULL, &offload_loop, NULL); 
-
+    pthread_setname_np(thread_ids[1], "Metric offload");
     if (thr_error != 0) {
-        T_printf("\nGathering thread creation failed:[%s]\n", strerror(thr_error));
+        T_printf("\nOffload thread creation failed:[%s]\n", strerror(thr_error));
     }
 
+    #ifdef ENABLE_MQTT
+    if(strcmp(exporter, "MQTT") == 0){
+        thr_error = pthread_create(&(thread_ids[2]), NULL, &mqtt_loop, NULL); 
+        pthread_setname_np(thread_ids[2], "MQTT");
+        if (thr_error != 0) {
+            T_printf("\nMQTT thread creation failed:[%s]\n", strerror(thr_error));
+        }
+    }
+    #endif
     T_printf("Threads started. Merging main thread with gathering thread.\n");
-    
+
     main_loop();
 }
 
@@ -185,12 +199,6 @@ void gathering_loop_iteration(){
 }
 
 bool initialize(char* cfg_filepath){
-    T_printf("Initializing exporter...\n");
-    char* error = initialize_exporter();
-    if (error != NULL){
-        T_printf("Error initializing exporter: %s\n", error);
-        exit(EXIT_FAILURE);
-    }
     T_printf("Config file path is: %s\n", cfg_filepath);
     T_printf("Loading config...");
     struct config* configuration = get_config(cfg_filepath);
@@ -214,22 +222,34 @@ bool initialize(char* cfg_filepath){
         T_printf("\n");
         temp = temp->next;
     } while (temp != NULL);
+    
+    T_printf("Initializing exporter...\n");
+    char* error = initialize_exporter();
+    if (error != NULL){
+        T_printf("Error initializing exporter: %s\n", error);
+        exit(EXIT_FAILURE);
+    }
 
     return true;
 }
 
 char* initialize_exporter(){
     if(strcmp(exporter, "FILE") == 0){
-        if(access(exporter_config, W_OK) == 0) {
+        char* dirname_ptr = malloc(sizeof(char) * strlen(exporter_config));
+        strcpy(dirname_ptr, exporter_config);
+        dirname(dirname_ptr);
+        if(access(dirname_ptr, W_OK) == 0) {
+            free(dirname_ptr);
             return NULL;
         } else {
+            free(dirname_ptr);
             return "Filepath not accessible!";   
         }
     }
 
 #ifdef ENABLE_MQTT
     if(strcmp(exporter, "MQTT") == 0){
-        return initialize_mqtt(exporter_config);
+        return initialize_mqtt(exporter_config, monitoring_points);
     }
 #endif
 

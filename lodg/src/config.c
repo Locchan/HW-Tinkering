@@ -101,6 +101,7 @@ struct monitoring_point* configure_monitoring_points(struct config* configuratio
             err_malformed_config();
         }
 
+        // Parse device type and name
         substring(configuration->key, 0, 6, current_monitoring_point->device_type);
         substring(configuration->key, 6, -1, current_monitoring_point->device_name);
 
@@ -109,22 +110,28 @@ struct monitoring_point* configure_monitoring_points(struct config* configuratio
         char* value = malloc((strlen(configuration->value) + 1) * sizeof(char));
         strcpy(value, configuration->value);
 
-        int16_t delimiter_pos = findchr(value, value_delimiter);
+        // find the first space in the string to get measurement unit
+        int16_t first_delimiter_pos = findchr(value, value_delimiter, 0);
         
-        if (delimiter_pos == -1){
+        if (first_delimiter_pos == -1){
             sprintf(err, "Malformed entry (key value): {\"%s\": \"%s\"}\n", configuration->key, configuration->value);
             err_malformed_config();
         }
 
-        if (strlen(configuration->value) > 44){
-            sprintf(err, "Malformed entry (%s): value is too long! (max 42 chars)\n", configuration->key);
+        if (strlen(configuration->value) > 60){
+            sprintf(err, "Malformed entry (%s): value is too long! (max 58 chars)\n", configuration->key);
             err_malformed_config();
         }
 
-        substring(configuration->value, 0, delimiter_pos, current_monitoring_point->cfg);
+        substring(configuration->value, 0, first_delimiter_pos, current_monitoring_point->device_measurement_unit);
+        
+        // find the second space in the string to get config
+        int16_t second_delimiter_pos = findchr(value, value_delimiter, 1);
+
+        substring(configuration->value, first_delimiter_pos + 1, second_delimiter_pos, current_monitoring_point->cfg);
         strip(current_monitoring_point->cfg);
 
-        substring(configuration->value, delimiter_pos, -1, interval);
+        substring(configuration->value, second_delimiter_pos, -1, interval);
         strip(interval);
 
         free(value);
@@ -137,7 +144,11 @@ struct monitoring_point* configure_monitoring_points(struct config* configuratio
         }
 
         current_monitoring_point->gathering_interval_sec = atoi(interval);
-
+        if(current_monitoring_point->gathering_interval_sec < 1){
+            sprintf(err, "Invalid gathering interval: %d\n", current_monitoring_point->gathering_interval_sec);
+            err_malformed_config();
+        }
+        
         iterator++;
         configuration = configuration->next;
     } while(configuration != NULL);
@@ -147,7 +158,7 @@ struct monitoring_point* configure_monitoring_points(struct config* configuratio
 }
 
 void err_malformed_config(){
-    T_printf("\nMalformed config.\n");
+    T_printf("\nError: Malformed config:\n");
     if (strlen(err) != 0){
         T_printf("%s\n", err);
     }

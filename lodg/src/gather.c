@@ -14,12 +14,10 @@ struct monitoring_data_entry* gather_metric(struct monitoring_point* point){
     time_t gathering_time = 1;
     struct monitoring_data_entry* new_data_entry = malloc(sizeof(struct monitoring_data_entry));
     *new_data_entry = (struct monitoring_data_entry) {0};
-    new_data_entry->device_id = point->device_id;
-    new_data_entry->device_name = point->device_name;
-    new_data_entry->device_type = point->device_type;
+    new_data_entry->device = point;
     new_data_entry->value = get_metric_value(point);
 
-    T_printdbg("GT: %s:%s -> %d\n", new_data_entry->device_name, new_data_entry->device_type, new_data_entry->value);
+    T_printdbg("GT: %s:%s -> %f\n", new_data_entry->device->device_name, new_data_entry->device->device_type, new_data_entry->value);
 
     time(&gathering_time);
     new_data_entry->time = gathering_time;
@@ -28,7 +26,7 @@ struct monitoring_data_entry* gather_metric(struct monitoring_point* point){
     return new_data_entry;
 }
 
-int get_metric_value(struct monitoring_point* point){
+float get_metric_value(struct monitoring_point* point){
     #ifdef ENABLE_UNIX_GATHERERS
     if(strcmp(point->device_type, "UNXCPU") == 0){
         return get_la1();

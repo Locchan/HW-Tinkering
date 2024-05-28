@@ -93,11 +93,15 @@ void substring(const char* input, uint8_t offset, int16_t len, char* dest){
 
 // Finds a first matching character inside a string and returns its position
 // Returns -1 is the char is not found
-int16_t findchr(char* str, const char* token){
+int16_t findchr(char* str, const char* token, uint8_t ignore_first){
+    uint8_t found = 0;
     uint8_t string_len = strlen(str);
     for (int16_t i = 0; i < string_len; i++){
         if (str[i] == *token){
-            return i;
+            found++;
+            if(found > ignore_first){
+                return i;
+            }
         }
     }
     return -1;

@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-uint8_t get_la1();
+float get_la1();
 
 #endif
 

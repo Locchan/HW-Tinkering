@@ -17,6 +17,7 @@ struct monitoring_point {
     uint8_t device_id;
     char device_name[11];
     char device_type[7];
+    char device_measurement_unit[16];
     char cfg[33];
     uint32_t gathering_interval_sec; // 10 chars max
     time_t last_gathered;
@@ -25,11 +26,9 @@ struct monitoring_point {
 };
 
 struct monitoring_data_entry {
-    uint8_t device_id;
-    char* device_name;
-    char* device_type;
+    struct monitoring_point* device;
     time_t time;
-    int value;
+    float value;
     struct monitoring_data_entry* head;
     struct monitoring_data_entry* tail;
     struct monitoring_data_entry* next;
