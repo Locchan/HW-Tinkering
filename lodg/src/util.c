@@ -1,4 +1,4 @@
-#define _POSIX_C_SOURCE 200112L
+#define _GNU_SOURCE
 #include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>

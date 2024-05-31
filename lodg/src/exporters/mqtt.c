@@ -1,10 +1,10 @@
 typedef int stop_throwing_warnings_gcc;
 #ifdef ENABLE_MQTT
 
-#include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <mosquitto.h>
+#include <unistd.h>
 
 #include "../headers/datastrcts.h"
 #include "./headers/mqtt.h"
