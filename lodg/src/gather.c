@@ -29,7 +29,7 @@ struct monitoring_data_entry* gather_metric(struct monitoring_point* point){
 float get_metric_value(struct monitoring_point* point){
     #ifdef ENABLE_UNIX_GATHERERS
     if(strcmp(point->device_type, "UNXCPU") == 0){
-        return get_la1();
+        return get_cpu_load();
     } else if ((strcmp(point->device_type, "UNXMAV") == 0)){
         return get_memavail();
     }

@@ -17,8 +17,9 @@ char* loadavg_path = "./loadavg";
 char* meminfo_path = "./meminfo";
 #endif
 
-float get_la1(){
-    // cpu  1417 0 2678 73606 0 0 145 0 0 0
+// Returns not pure CPU usage but la1 times 100
+float get_cpu_load(){
+    // cpu  0.23 0.20 0.26 4/408 14695
     FILE *fp;
     float la1;
     fp = fopen(loadavg_path, "r");

@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-float get_la1();
+float get_cpu_load();
 float get_memavail();
 
 #endif

@@ -94,7 +94,7 @@ char* register_metrics(struct monitoring_point* monitoring_points, char* result)
         sprintf(config_topic, "homeassistant/sensor/%s/%s_%d/config", mqtt_cfg->mqtt_unique_device_id, temp_ptr->device_name, temp_ptr->device_id);
         sprintf(state_topic, "homeassistant/binary_sensor/%s/state", mqtt_cfg->mqtt_unique_device_id);
         sprintf(payload, "{ \"name\": \"%s:%s\", \"unique_id\": \"%s_%s_%s_%d\", \"state_topic\": \"%s\", \"unit_of_measurement\": \"%s\", \"device\": {\"identifiers\": [\"%s\"], \"name\": \"%s\", \"manufacturer\": \"Locchan\", \"model\": \"Prototype\"}, \"value_template\": \"{{ value_json.%s_%d }}\" }",
-            temp_ptr->device_name, temp_ptr->device_type,
+            temp_ptr->device_type, temp_ptr->device_name,
             mqtt_cfg->mqtt_unique_device_id, temp_ptr->device_type, temp_ptr->device_name, temp_ptr->device_id,
             state_topic,
             temp_ptr->device_measurement_unit,
