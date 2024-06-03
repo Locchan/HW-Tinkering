@@ -11,18 +11,19 @@ typedef int stop_throwing_warnings_gcc;
 #include "../headers/util.h"
 
 #define MQTT_LOOP_PERIOD_SEC 5
-#define STATE_TOPIC "homeassistant/binary_sensor/meteo/state"
 
 const char mqtt_cfg_delimiter[1] = ":";
 struct mosquitto* mosquitto_obj;
+struct mqtt_config* mqtt_cfg;
 
-struct mqtt_config* popularize_mqtt_config(char* exporter_config){
-    struct mqtt_config* config = malloc(sizeof(struct mqtt_config));
-    config->address = strtok(exporter_config, mqtt_cfg_delimiter);;
-    config->port = strtok(NULL, mqtt_cfg_delimiter);
-    config->username = strtok(NULL, mqtt_cfg_delimiter);
-    config->password = strtok(NULL, mqtt_cfg_delimiter);
-    return config;
+void popularize_mqtt_config(char* exporter_config){
+    mqtt_cfg = malloc(sizeof(struct mqtt_config));
+    mqtt_cfg->address = strtok(exporter_config, mqtt_cfg_delimiter);;
+    mqtt_cfg->port = strtok(NULL, mqtt_cfg_delimiter);
+    mqtt_cfg->username = strtok(NULL, mqtt_cfg_delimiter);
+    mqtt_cfg->password = strtok(NULL, mqtt_cfg_delimiter);
+    mqtt_cfg->mqtt_unique_device_id = strtok(NULL, mqtt_cfg_delimiter);
+    mqtt_cfg->mqtt_device_name = strtok(NULL, mqtt_cfg_delimiter);
 }
 
 bool validate_mqtt_config(struct mqtt_config* config){
@@ -38,8 +39,9 @@ bool validate_mqtt_config(struct mqtt_config* config){
 }
 
 char* initialize_mqtt(char* exporter_config, struct monitoring_point* monitoring_points){
+    popularize_mqtt_config(exporter_config);
+
     char* result = malloc(256 * sizeof(char*));
-    struct mqtt_config* mqtt_cfg = popularize_mqtt_config(exporter_config);
     T_printf("Initializing MQTT: Server: %s, Port: %s, Username: %s.\n",
      mqtt_cfg->address, mqtt_cfg->port, mqtt_cfg->username);
 
@@ -87,23 +89,31 @@ char* register_metrics(struct monitoring_point* monitoring_points, char* result)
     struct monitoring_point* temp_ptr = monitoring_points->head;
     char* payload = malloc(512 * sizeof(char));
     char* config_topic = malloc(256 * sizeof(char));
+    char* state_topic = malloc(256 * sizeof(char));
     while(temp_ptr != NULL) {
-        sprintf(config_topic, "homeassistant/sensor/meteo/%s_%d/config", temp_ptr->device_name, temp_ptr->device_id);
-        sprintf(payload, "{ \"name\": \"%s:%s\", \"unique_id\": \"mt_%s_%s_%d\", \"state_topic\": \"%s\", \"unit_of_measurement\": \"%s\", \"device\": {\"identifiers\": [\"meteo\"], \"name\": \"MeteoStation\", \"manufacturer\": \"Locchan\", \"model\": \"Prototype\"}, \"value_template\": \"{{ value_json.%s_%d }}\" }",
+        sprintf(config_topic, "homeassistant/sensor/%s/%s_%d/config", mqtt_cfg->mqtt_unique_device_id, temp_ptr->device_name, temp_ptr->device_id);
+        sprintf(state_topic, "homeassistant/binary_sensor/%s/state", mqtt_cfg->mqtt_unique_device_id);
+        sprintf(payload, "{ \"name\": \"%s:%s\", \"unique_id\": \"%s_%s_%s_%d\", \"state_topic\": \"%s\", \"unit_of_measurement\": \"%s\", \"device\": {\"identifiers\": [\"%s\"], \"name\": \"%s\", \"manufacturer\": \"Locchan\", \"model\": \"Prototype\"}, \"value_template\": \"{{ value_json.%s_%d }}\" }",
             temp_ptr->device_name, temp_ptr->device_type,
-            temp_ptr->device_type, temp_ptr->device_name, temp_ptr->device_id,
-            STATE_TOPIC,
+            mqtt_cfg->mqtt_unique_device_id, temp_ptr->device_type, temp_ptr->device_name, temp_ptr->device_id,
+            state_topic,
             temp_ptr->device_measurement_unit,
+            mqtt_cfg->mqtt_unique_device_id,
+            mqtt_cfg->mqtt_device_name,
             temp_ptr->device_name, temp_ptr->device_id
         );
         T_printdbg("Initializing device:\n\t  Topic: %s\n\tPayload: %s\n", config_topic, payload);
         cfg_result = mosquitto_publish(mosquitto_obj, NULL, config_topic, strlen(payload) * sizeof(char), payload, 0, true);
         if(cfg_result != MOSQ_ERR_SUCCESS){
             sprintf(result, "Failed to register a device. Error code: %s.", mosquitto_strerror(cfg_result));
+            free(state_topic);
+            free(config_topic);
+            free(payload);
             return result;
         }
         temp_ptr = temp_ptr->next;
     }
+    free(state_topic);
     free(config_topic);
     free(payload);
     return NULL;
@@ -146,12 +156,15 @@ char* mqtt_generate_data_json(struct monitoring_data_entry* data_to_publish){
 
 int mqtt_publish_state(char* json_formatted_data){
     int send_result;
+    char* data_topic = malloc(256 * sizeof(char));
+    sprintf(data_topic, "homeassistant/binary_sensor/%s/state", mqtt_cfg->mqtt_unique_device_id);
     T_printdbg("OT: Publishing data: %s\n", json_formatted_data);
-    send_result = mosquitto_publish(mosquitto_obj, NULL, "homeassistant/binary_sensor/meteo/state", strlen(json_formatted_data) * sizeof(char), json_formatted_data, 0, false);
+    send_result = mosquitto_publish(mosquitto_obj, NULL, data_topic, strlen(json_formatted_data) * sizeof(char), json_formatted_data, 0, false);
     if(send_result != MOSQ_ERR_SUCCESS){
         T_printf("Failed to publish data. Error code: %s.", mosquitto_strerror(send_result));
         return 0;
     }
+    free(data_topic);
     free(json_formatted_data);
     return -1;
 }

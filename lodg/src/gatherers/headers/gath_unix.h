@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 float get_la1();
+float get_memavail();
 
 #endif
 

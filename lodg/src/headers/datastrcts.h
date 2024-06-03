@@ -40,6 +40,8 @@ struct mqtt_config {
     char* topic;
     char* username;
     char* password;
+    char* mqtt_unique_device_id;
+    char* mqtt_device_name;
 };
 
 #endif

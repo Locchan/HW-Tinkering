@@ -34,8 +34,7 @@ struct config* get_config(char* filepath){
     char line_buf[MAX_LEN];
     uint8_t iterator = 0;
     bool start_found = 0;
-    while (fgets(line_buf, MAX_LEN, fp))
-    {
+    while (fgets(line_buf, MAX_LEN, fp)){
         line_buf[strcspn(line_buf, "\r\n")] = 0;
 
         // Ignore first 5 lines

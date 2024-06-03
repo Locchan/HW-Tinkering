@@ -34,7 +34,7 @@ void print_help(){
     T_printf("\t-d\n\t\tToggle debug.\n");
     T_printf("\t-v\n\t\tPrint version.\n");
     T_printf("Exporter configuration: \n");
-    T_printf("\tMQTT\n\t\tADDR:PORT:USERNAME:PASSWORD.\n");
+    T_printf("\tMQTT\n\t\tADDR:PORT:USERNAME:PASSWORD:DEVICE_NAME.\n");
     T_printf("\tFILE\n\t\tJust a valid path to a file in local filesystem.\n");
 }
 
